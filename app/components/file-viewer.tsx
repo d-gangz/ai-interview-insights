@@ -1,13 +1,11 @@
 "use client";
 
-import type { PutBlobResult } from "@vercel/blob";
 import { useState, useRef } from "react";
 import { Trash } from "lucide-react";
-import { list } from "@vercel/blob";
-import { uploadToS3 } from "../lib/s3";
+import { listFiles, uploadToS3 } from "../lib/s3";
 
 export default function Fileviewer() {
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState<string[]>([]);
 
   const inputFileRef = useRef<HTMLInputElement>(null);
 
@@ -37,37 +35,21 @@ export default function Fileviewer() {
       console.error("Error uploading files:", error);
     }
 
-    // // Vercel blob put method only can handle one file at a time. So need to loop it
-    // for (const file of fileList) {
-    //   const response = await fetch(`/api/upload?filename=${file.name}`, {
-    //     method: "POST",
-    //     body: file,
-    //   });
-
-    //   const newBlob = (await response.json()) as PutBlobResult;
-
-    //   uploadPromises.push(newBlob);
-    // }
-
-    // try {
-    //   // Promise all is used to wait for all uploads to finish
-    //   const results = await Promise.all(uploadPromises);
-    //   console.log(results); // Handle or display the results as needed
-    // } catch (error) {
-    //   console.error("Error uploading files:", error);
-    // }
-
-    //Getting updated files from Blob & this is causing ERRORSSS zzzz
-    // const fetchFiles = await list();
-    // setFiles(fetchFiles.blobs as any);
-    // console.log(fetchFiles);
+    // list all files uploaded to s3.
+    // We can't directly retrieve from results cuz what if user uploads one by one.
+    const filesfromS3 = await listFiles();
+    setFiles(filesfromS3);
   }
 
   return (
     <div className="bg-slate-50 p-6 min-h-full w-[480px] rounded-2xl flex flex-col">
       <div className="flex flex-col flex-grow">
-        <p>Place to hold the files</p>
-        <Trash className="w-4 h-4" />
+        <p className="text-lg font-bold mb-4">Uploaded Files</p>
+        <ul className="flex flex-col gap-2">
+          {files.map((file, index) => (
+            <li key={index}>{file}</li>
+          ))}
+        </ul>
       </div>
       <div className="flex flex-col items-center justify-center space-y-4 pt-24 pb-3">
         <p>Attach files for file search</p>
