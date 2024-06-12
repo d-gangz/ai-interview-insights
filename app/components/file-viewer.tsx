@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { Trash } from "lucide-react";
 import { listFiles, uploadToS3 } from "../lib/s3";
+import { loadIntoPinecone } from "../lib/pinecone";
 
 export default function Fileviewer() {
   const [files, setFiles] = useState<string[]>([]);
@@ -18,21 +19,36 @@ export default function Fileviewer() {
 
     // cannot loop a FileList, so needa convert it into an Array first.
     const fileList = Array.from(inputFileRef.current.files);
-    // Array to hold the promises
-    const uploadPromises = [];
+    // Array to hold the promises for s3 upload
+    const uploadS3Promises = [];
 
     // Loop through each file and upload to S3
     for (const file of fileList) {
+      // Will obtain file_key and file_name for a single file
       const data = await uploadToS3(file);
-      uploadPromises.push(data);
+      uploadS3Promises.push(data);
     }
 
     try {
       // Promise all is used to wait for all uploads to finish
-      const results = await Promise.all(uploadPromises);
-      console.log("Upload success", results);
+      // Here you will get a array of file_key & file_name
+      const results = await Promise.all(uploadS3Promises);
+      console.log("S3 Upload success", results);
+
+      // Array to hold the promises for pinecone upload
+      const uploadPineconePromises: Promise<any>[] = [];
+      // loop through each result, extract file_key and load into pinecone
+      for (const result of results) {
+        const { file_key } = result;
+        // --note-- this part the fs in download from s3 only runs server side. so need to make this into an API route
+        // const vector = await loadIntoPinecone(file_key);
+        // uploadPineconePromises.push(vector);
+      }
+
+      // await Promise.all(uploadPineconePromises);
+      // console.log("Pinecone upload success");
     } catch (error) {
-      console.error("Error uploading files:", error);
+      console.error(error);
     }
 
     // list all files uploaded to s3.

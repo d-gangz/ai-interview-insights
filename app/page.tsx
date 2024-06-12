@@ -1,5 +1,5 @@
-import Chat from "./components/chat";
-import Fileviewer from "./components/file-viewer";
+import Chat from "./components/Chat";
+import Fileviewer from "./components/File-viewer";
 
 export default function Home() {
   return (

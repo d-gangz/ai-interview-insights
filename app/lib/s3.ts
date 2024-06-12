@@ -5,7 +5,7 @@ import { PutObjectCommandOutput, S3 } from "@aws-sdk/client-s3";
 const s3 = new S3({
   region: "ap-southeast-1",
   credentials: {
-    // need NEXT_PUBLIC in front cuz it will be exposed to client component.
+    // need NEXT_PUBLIC in front cuz it is being called by client component
     accessKeyId: process.env.NEXT_PUBLIC_S3_ACCESS_KEY_ID!,
     secretAccessKey: process.env.NEXT_PUBLIC_S3_SECRET_ACCESS_KEY!,
   },
@@ -28,6 +28,11 @@ export async function uploadToS3(
         Body: file,
       };
 
+      /* 
+        If you dont wrap in a promise, it returns an AWS.Request object instead.
+        So we need to wrap it in a promise so that we can use async/await for handling the response,
+        making the code more readable and easier to manage.
+      */
       s3.putObject(
         params,
         (err: any, data: PutObjectCommandOutput | undefined) => {
@@ -51,7 +56,7 @@ export function getS3Url(file_key: string) {
 }
 
 // returns the file names from the S3 bucket
-// ---QQQuestion: why use return new Promise?
+// ---Question: why use return new Promise?
 export async function listFiles(): Promise<string[]> {
   const params = {
     Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME!,
@@ -74,28 +79,3 @@ export async function listFiles(): Promise<string[]> {
     });
   });
 }
-
-// // Why can't I write listFiles function like this?
-// // returns the file names from the S3 bucket
-// export function listFiles() {
-//   const params = {
-//     // store your bucket name. The ! tells typescript it will definitely have a value
-//     Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME!,
-//   };
-
-//   s3.listObjectsV2(params, (err: any, data: any) => {
-//     if (err) {
-//       console.log("Error", err);
-//     } else {
-//       // Output the names of the files
-//       console.log(data);
-//       const filenames = data.Contents.map((file: any) => {
-//         // each data.Contents.key format is "uploads/1717986595084-Terry-Interview.pdf"
-//         const splitKey = file.Key.split("-");
-//         return splitKey.slice(1).join("-"); // Join back the remaining parts if there are multiple '-' in the name
-//       });
-//       console.log("File Names:", filenames);
-//       return filenames;
-//     }
-//   });
-// }
