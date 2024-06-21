@@ -65,8 +65,14 @@ export async function POST(req: Request) {
   const namespace = pineconeIndex.namespace(convertToAscii("insights"));
 
   console.log("inserting vectors into pinecone");
+
+  const batchSize = 100;
+  for (let i = 0; i < vectors.length; i += batchSize) {
+    const batch = vectors.slice(i, i + batchSize);
+    await namespace.upsert(batch);
+  }
   // Push vectors to the specified namespace
-  await namespace.upsert(vectors);
+  // await namespace.upsert(vectors);
 
   // return the 1st document just for the sake of it
   return Response.json(documents);
