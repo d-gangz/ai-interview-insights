@@ -4,7 +4,8 @@ import fs from "fs";
 
 // this function takes in a file_key and then download it into the specific folder
 export default async function downloadFromS3(
-  file_key: string
+  file_key: string,
+  filename: string
 ): Promise<string> {
   return new Promise(async (resolve, reject) => {
     try {
@@ -23,8 +24,8 @@ export default async function downloadFromS3(
 
       const obj = await s3.getObject(params);
       // Generate a unique file name for the downloaded file
-      const file_name = `/tmp/gang${Date.now().toString()}.pdf`;
-
+      // const file_name = `/tmp/gang${Date.now().toString()}.pdf`;
+      const file_name = `/tmp/gang${filename.toString()}`;
       // Check if body of response is a readable stream
       // Important because data from S3 is streamed
       if (obj.Body instanceof require("stream").Readable) {
@@ -39,6 +40,7 @@ export default async function downloadFromS3(
           // Listen for the 'finish' event from createWriteStream to resolve the promise with the file name.
           // pipe method allows you to connect a readable stream to a writable stream
           obj.Body?.pipe(file).on("finish", () => {
+            console.log("File downloaded and stored in /tmp folder");
             return resolve(file_name);
           });
         });

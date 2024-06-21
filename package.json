@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "export NODE_OPTIONS='--max-old-space-size=8192' && next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -11,13 +11,23 @@
   "dependencies": {
     "@ai-sdk/openai": "^0.0.14",
     "@aws-sdk/client-s3": "^3.592.0",
+    "@langchain/community": "^0.2.11",
+    "@pinecone-database/doc-splitter": "^0.0.1",
+    "@pinecone-database/pinecone": "^2.2.2",
+    "@types/md5": "^2.3.5",
     "@vercel/blob": "^0.23.3",
     "ai": "^3.1.14",
     "aws-sdk": "^2.1637.0",
+    "clsx": "^2.1.1",
+    "langchain": "^0.2.5",
     "lucide-react": "^0.383.0",
+    "md5": "^2.3.0",
     "next": "14.2.3",
+    "openai-edge": "^1.2.2",
+    "pdf-parse": "^1.1.1",
     "react": "^18",
     "react-dom": "^18",
+    "tailwind-merge": "^2.3.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
